@@ -13,10 +13,9 @@ Image classification is one important field in Computer Vision, not only because
 
 First, let's create a spiral dataset with 4 classes and 200 examples each. 
 
-```{r, message=FALSE, warning=FALSE}
+```{r, message=FALSE, warning=FALSE, cache=TRUE}
 library(ggplot2)
 library(caret)
-source('init.R')
 
 N <- 200 # number of points per class
 D <- 2 # dimensionality
@@ -41,24 +40,24 @@ colnames(data) <- c(colnames(X), 'label')
 
 X, y are 800 by 2 and 800 by 1 data frames respectively, and they are created in a way such that a linear classifier cannot separate them. Since the data is 2D, we can easily visualize it on a plot. They are roughly evenly spaced and indeed a line is not a good decision boundary.
 
-```{r, message=FALSE}
+```{r, message=FALSE, cache=TRUE}
 x_min <- min(X[,1])-0.2; x_max <- max(X[,1])+0.2
 y_min <- min(X[,2])-0.2; y_max <- max(X[,2])+0.2
 
 # lets visualize the data:
-ggplot(data) + geom_point(aes(x=x, y=y, color = as.character(label)), size = 2) + theme_tws(base_size = 15) +
-  xlab('X') + ylab('Y')+ xlim(x_min, x_max) + ylim(y_min, y_max) +
-  title_with_subtitle('Spiral Data Visulization', 'consists of 4 classes') +
-  scale_color_discrete(name = 'Label') + coord_fixed(ratio = 0.6) +
+ggplot(data) + geom_point(aes(x=x, y=y, color = as.character(label)), size = 2) + theme_bw(base_size = 15) +
+  xlim(x_min, x_max) + ylim(y_min, y_max) +
+  ggtitle('Spiral Data Visulization') +
+  coord_fixed(ratio = 0.8) +
   theme(axis.ticks=element_blank(), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), 
-        axis.text=element_blank(),legend.position = c(0.85, 0.8))
+        axis.text=element_blank(), axis.title=element_blank(), legend.position = 'none')
 ```
 
 ## Neural network construction
 
 Now, let's construct a NN with 2 layers. But before that, we need to convert X into a matrix (for matrix operation later on). For labels in y, a new matrix Y (800 by 4) is created such that for each example (each row in Y), the entry with index==label is 1 (and 0 otherwise).
 
-```{r, message=FALSE}
+```{r, message=FALSE, cache=TRUE}
 X <- as.matrix(X)
 Y <- matrix(0, N*K, K)
 
@@ -71,7 +70,7 @@ Next, let's build a function 'nnet' that takes two matrices X and Y and returns 
 
 For the choice of activation and loss (cost) function, ReLU and softmax are selected respectively. If you have taken the ML class by Andrew Ng (strongly recommended), sigmoid and logistic cost function are chosen in the course notes and assignment. They look slightly different, but can be implemented fairly easily just by modifying the following code. Also note that the implementation below uses vecterized operation that may seem hard to follow. If so, you can write down dimensions of each matrix and check multiplications and so on. By doing so, you also know what's under the hood for a neural network. 
   
-```{r}
+```{r, cache=TRUE}
 # %*% dot product, * element wise product
 nnet <- function(X, Y, step_size = 0.5, reg = 0.001, h = 10, niteration){
   # get dim of input
@@ -139,7 +138,7 @@ nnet <- function(X, Y, step_size = 0.5, reg = 0.001, h = 10, niteration){
 
 Next, create a prediction function, which takes X (same col as training X but may have different rows) and layer parameters as input. The output is the column index of max score in each row. In this example, the output is simply the label of each class. Now we can print out the training accuracy.
 
-```{r}
+```{r, cache=TRUE}
 nnetPred <- function(X, para = list()){
   W <- para[[1]]
   b <- para[[2]]
@@ -164,7 +163,7 @@ print(paste('training accuracy:',mean(predicted_class == (y))))
 
 Next, let's plot the decision boundary. We can also use the caret package and train different classifiers with the data and visualize the decision boundaries. It is very interesting to see how different algorithms make decisions. This is going to be another post.
 
-```{r}
+```{r, cache=TRUE}
 # plot the resulting classifier
 hs <- 0.01
 grid <- as.matrix(expand.grid(seq(x_min, x_max, by = hs), seq(y_min, y_max, by =hs)))
@@ -172,18 +171,18 @@ Z <- nnetPred(grid, nnet.model)
 
 ggplot()+
   geom_tile(aes(x = grid[,1],y = grid[,2],fill=as.character(Z)), alpha = 0.3, show.legend = F)+ 
-  geom_point(data = data, aes(x=x, y=y, color = as.character(label)), size = 2) + theme_tws(base_size = 15) +
-  xlab('X') + ylab('Y') + title_with_subtitle('Neural Network Decision Boundary', '50 neurons') +
-  scale_color_discrete(name = 'Label') + coord_fixed(ratio = 0.6) +
+  geom_point(data = data, aes(x=x, y=y, color = as.character(label)), size = 2) + theme_bw(base_size = 15) +
+  ggtitle('Neural Network Decision Boundary') +
+  coord_fixed(ratio = 0.8) + 
   theme(axis.ticks=element_blank(), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), 
-        axis.text=element_blank(),legend.position = c(0.85, 0.8))
+        axis.text=element_blank(), axis.title=element_blank(), legend.position = 'none')
 ```
 
 ## MNIST data and preprocessing
 
 The famous MNIST ("Modified National Institute of Standards and Technology") dataset is a classic within the Machine Learning community that has been extensively studied. It is a collection of handwritten digits that are decomposed into a csv file, with each row representing one example, and the column values are grey scale from 0-255 of each pixel. First, let's display an image.
 
-```{r}
+```{r, cache=TRUE}
 displayDigit <- function(X){
   m <- matrix(unlist(X),nrow = 28,byrow = T)
   m <- t(apply(m, 2, rev))
@@ -191,12 +190,12 @@ displayDigit <- function(X){
 }
 
 train <- read.csv("data/train.csv", header = TRUE, stringsAsFactors = F)
-displayDigit(train[8,-1])
+displayDigit(train[18,-1])
 ```
 
 Now, let's preprocess the data by removing near zero variance columns and scaling by max(X). The data is also splitted into two for cross validation. Once again, we need to creat a Y matrix with dimension N by K. This time the non-zero index in each row is offset by 1: label 0 will have entry 1 at index 1, label 1 will have entry 1 at index 2, and so on. In the end, we need to convert it back. (Another way is put 0 at index 10 and no offset for the rest labels.)
 
-```{r}
+```{r, cache=TRUE}
 nzv <- nearZeroVar(train)
 nzv.nolabel <- nzv-1
 
@@ -228,7 +227,7 @@ for (i in 1:N){
 
 Now we can train the model with the training set. Note even after removing nzv columns, the data is still huge, so it may take a while for result to converge. Here I am only training the model for 3500 interations. You can vary the interations, learning rate and regularization strength and plot the learning curve for optimal fitting.
   
-```{r}
+```{r, cache=TRUE}
 nnet.mnist <- nnet(X.proc, Y, step_size = 0.3, reg = 0.0001, niteration = 3500)
 predicted_class <- nnetPred(X.proc, nnet.mnist)
 print(paste('training set accuracy:',mean(predicted_class == (y+1))))
@@ -241,7 +240,7 @@ print(paste('CV accuracy:',mean(predicted_class == (ycv+1))))
 
 Finally, let's randomly select an image and predict the lable.
   
-```{r}
+```{r, cache=TRUE}
 Xtest <- Xcv[sample(1:nrow(Xcv), 1), ]
 Xtest.proc <- as.matrix(Xtest[-nzv.nolabel], nrow = 1)
 predicted_test <- nnetPred(t(Xtest.proc), nnet.mnist)
