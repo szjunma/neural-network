@@ -7,7 +7,7 @@ output: html_document
   
 ## Introduction
 
-Image classification is one important field in Computer Vision, not only because so many applications are associated with it, but also a lot of Computer Vision problems can be effectively reduced to image classification. The state of art tool in image classification is Convolutional Neural Network (CNN). In this article, I am going to write a simple Neural Network with 2 layers (fully connected). First, I will train it to classify a set of 4-class 2D data and visualize the decision bounday. Second, I am going to train my NN with the famous MNIST data (https://www.kaggle.com/c/digit-recognizer) and see its performance. The first part mainly follows CS 231n course offered by Stanford: http://cs231n.github.io/.
+Image classification is one important field in Computer Vision, not only because so many applications are associated with it, but also a lot of Computer Vision problems can be effectively reduced to image classification. The state of art tool in image classification is Convolutional Neural Network (CNN). In this article, I am going to write a simple Neural Network with 2 layers (fully connected). First, I will train it to classify a set of 4-class 2D data and visualize the decision bounday. Second, I am going to train my NN with the famous MNIST data (you can download it here: https://www.kaggle.com/c/digit-recognizer/download/train.csv) and see its performance. The first part is inspired by CS 231n course offered by Stanford: http://cs231n.github.io/, which is taught in Python.
 
 ## Data set generation
 
@@ -228,12 +228,15 @@ for (i in 1:N){
 Now we can train the model with the training set. Note even after removing nzv columns, the data is still huge, so it may take a while for result to converge. Here I am only training the model for 3500 interations. You can vary the interations, learning rate and regularization strength and plot the learning curve for optimal fitting.
   
 ```{r, cache=TRUE}
-nnet.mnist <- nnet(X.proc, Y, step_size = 0.3, reg = 0.0001, niteration = 3500)
+nnet.mnist <- nnet(X.proc, Y, step_size = 0.3, 
+                   reg = 0.0001, niteration = 3500)
 predicted_class <- nnetPred(X.proc, nnet.mnist)
-print(paste('training set accuracy:',mean(predicted_class == (y+1))))
+print(paste('training set accuracy:',
+            mean(predicted_class == (y+1))))
 
 predicted_class <- nnetPred(Xcv.proc, nnet.mnist)
-print(paste('CV accuracy:',mean(predicted_class == (ycv+1))))
+print(paste('CV accuracy:',
+            mean(predicted_class == (ycv+1))))
 ```
 
 ## Prediction of a random image

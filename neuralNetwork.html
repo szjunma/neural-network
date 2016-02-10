@@ -69,7 +69,7 @@ img {
 
 <div id="introduction" class="section level2">
 <h2>Introduction</h2>
-<p>Image classification is one important field in Computer Vision, not only because so many applications are associated with it, but also a lot of Computer Vision problems can be effectively reduced to image classification. The state of art tool in image classification is Convolutional Neural Network (CNN). In this article, I am going to write a simple Neural Network with 2 layers (fully connected). First, I will train it to classify a set of 4-class 2D data and visualize the decision bounday. Second, I am going to train my NN with the famous MNIST data (<a href="https://www.kaggle.com/c/digit-recognizer" class="uri">https://www.kaggle.com/c/digit-recognizer</a>) and see its performance. The first part mainly follows CS 231n course offered by Stanford: <a href="http://cs231n.github.io/" class="uri">http://cs231n.github.io/</a>.</p>
+<p>Image classification is one important field in Computer Vision, not only because so many applications are associated with it, but also a lot of Computer Vision problems can be effectively reduced to image classification. The state of art tool in image classification is Convolutional Neural Network (CNN). In this article, I am going to write a simple Neural Network with 2 layers (fully connected). First, I will train it to classify a set of 4-class 2D data and visualize the decision bounday. Second, I am going to train my NN with the famous MNIST data (you can download it here: <a href="https://www.kaggle.com/c/digit-recognizer/download/train.csv" class="uri">https://www.kaggle.com/c/digit-recognizer/download/train.csv</a>) and see its performance. The first part is inspired by CS 231n course offered by Stanford: <a href="http://cs231n.github.io/" class="uri">http://cs231n.github.io/</a>, which is taught in Python.</p>
 </div>
 <div id="data-set-generation" class="section level2">
 <h2>Data set generation</h2>
@@ -271,18 +271,21 @@ for (i in 1:N){
 <div id="model-training-and-cv-accuracy" class="section level2">
 <h2>Model training and CV accuracy</h2>
 <p>Now we can train the model with the training set. Note even after removing nzv columns, the data is still huge, so it may take a while for result to converge. Here I am only training the model for 3500 interations. You can vary the interations, learning rate and regularization strength and plot the learning curve for optimal fitting.</p>
-<pre class="r"><code>nnet.mnist &lt;- nnet(X.proc, Y, step_size = 0.3, reg = 0.0001, niteration = 3500)</code></pre>
-<pre><code>## [1] &quot;iteration 0 : loss 2.30265553844748&quot;
-## [1] &quot;iteration 1000 : loss 0.303718250939774&quot;
-## [1] &quot;iteration 2000 : loss 0.271780096710725&quot;
-## [1] &quot;iteration 3000 : loss 0.252415244824614&quot;
-## [1] &quot;iteration 3500 : loss 0.250350279456443&quot;</code></pre>
+<pre class="r"><code>nnet.mnist &lt;- nnet(X.proc, Y, step_size = 0.3, 
+                   reg = 0.0001, niteration = 3500)</code></pre>
+<pre><code>## [1] &quot;iteration 0 : loss 2.30247239912026&quot;
+## [1] &quot;iteration 1000 : loss 0.284826022126945&quot;
+## [1] &quot;iteration 2000 : loss 0.260740130210026&quot;
+## [1] &quot;iteration 3000 : loss 0.241576382380585&quot;
+## [1] &quot;iteration 3500 : loss 0.237200715211837&quot;</code></pre>
 <pre class="r"><code>predicted_class &lt;- nnetPred(X.proc, nnet.mnist)
-print(paste('training set accuracy:',mean(predicted_class == (y+1))))</code></pre>
-<pre><code>## [1] &quot;training set accuracy: 0.93089140563888&quot;</code></pre>
+print(paste('training set accuracy:',
+            mean(predicted_class == (y+1))))</code></pre>
+<pre><code>## [1] &quot;training set accuracy: 0.93514267251641&quot;</code></pre>
 <pre class="r"><code>predicted_class &lt;- nnetPred(Xcv.proc, nnet.mnist)
-print(paste('CV accuracy:',mean(predicted_class == (ycv+1))))</code></pre>
-<pre><code>## [1] &quot;CV accuracy: 0.912360085734699&quot;</code></pre>
+print(paste('CV accuracy:',
+            mean(predicted_class == (ycv+1))))</code></pre>
+<pre><code>## [1] &quot;CV accuracy: 0.921806779391919&quot;</code></pre>
 </div>
 <div id="prediction-of-a-random-image" class="section level2">
 <h2>Prediction of a random image</h2>
